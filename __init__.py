@@ -16,7 +16,7 @@ def hello_world():
 def lecture():
     if not est_authentifie():
         return redirect(url_for('authentification'))
-    return f"<h2>Bravo {session.get('username')}, vous êtes authentifié en tant que {session.get('role')}</h2>"
+    return f"<h2>Bienvenue dans la Bibliothèque, {session.get('username')} !</h2><p>Vous êtes connecté en tant que {session.get('role')}.</p>"
 
 @app.route('/authentification', methods=['GET', 'POST'])
 def authentification():
@@ -24,14 +24,14 @@ def authentification():
         username = request.form['username']
         password = request.form['password']
         
-        # Vérification Admin (Séquence 4)
+        # Admin pour la gestion totale
         if username == 'admin' and password == 'password':
             session['authentifie'] = True
             session['username'] = 'admin'
             session['role'] = 'admin'
             return redirect(url_for('lecture'))
             
-        # Vérification User (Séquence 5 - Exercice 2)
+        # User pour la recherche simple
         elif username == 'user' and password == '12345':
             session['authentifie'] = True
             session['username'] = 'user'
@@ -43,52 +43,52 @@ def authentification():
 
     return render_template('formulaire_authentification.html', error=False)
 
-# Route pour l'Exercice 1 & 2 : Recherche par nom avec protection User
-@app.route('/fiche_nom/<nom>')
-def fiche_nom(nom):
-    # Protection : Seul le rôle 'user' peut accéder (Exercice 2)
-    if not est_authentifie() or session.get('role') != 'user':
-        return "Accès refusé : Cette route est réservée à l'utilisateur 'user' (mdp: 12345).", 401
+# Recherche de livre par TITRE (Exercice adapté Séquence 6)
+@app.route('/fiche_livre/<titre>')
+def fiche_livre(titre):
+    if not est_authentifie():
+        return redirect(url_for('authentification'))
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    # Recherche par nom (Exercice 1)
-    cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
+    # Recherche dans la nouvelle table 'livres'
+    cursor.execute('SELECT * FROM livres WHERE titre LIKE ?', ('%' + titre + '%',))
     data = cursor.fetchall()
     conn.close()
     
     return render_template('read_data.html', data=data)
 
-@app.route('/fiche_client/<int:post_id>')
-def Readfiche(post_id):
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients WHERE id = ?', (post_id,))
-    data = cursor.fetchall()
-    conn.close()
-    return render_template('read_data.html', data=data)
-
+# Consultation de toute la bibliothèque
 @app.route('/consultation/')
 def ReadBDD():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients;')
+    cursor.execute('SELECT * FROM livres;')
     data = cursor.fetchall()
     conn.close()
     return render_template('read_data.html', data=data)
 
-@app.route('/enregistrer_client', methods=['GET', 'POST'])
-def enregistrer_client():
+# Ajouter un nouveau livre à la bibliothèque
+@app.route('/enregistrer_livre', methods=['GET', 'POST'])
+def enregistrer_livre():
+    # Protection : seul l'admin peut ajouter des livres
+    if not est_authentifie() or session.get('role') != 'admin':
+        return "Accès refusé : Seul l'administrateur peut ajouter des livres.", 403
+
     if request.method == 'POST':
-        nom = request.form['nom']
-        prenom = request.form['prenom']
+        titre = request.form['titre']
+        auteur = request.form['auteur']
+        annee = request.form['annee']
+        
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO clients (created, nom, prenom, adresse) VALUES (?, ?, ?, ?)', (1002938, nom, prenom, "Lieu inconnu"))
+        # Insertion dans la table livres selon le nouveau schema.sql
+        cursor.execute('INSERT INTO livres (titre, auteur, annee_publication) VALUES (?, ?, ?)', (titre, auteur, annee))
         conn.commit()
         conn.close()
         return redirect(url_for('ReadBDD'))
-    return render_template('formulaire.html')
+        
+    return render_template('formulaire_livre.html') # Assurez-vous d'avoir ce template
 
 if __name__ == "__main__":
   app.run(debug=True)
