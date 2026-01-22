@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Supprimer une tâche</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4; }
+        .alert-box { background: white; padding: 30px; border-radius: 8px; border-left: 5px solid #dc3545; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { color: #dc3545; }
+        p { font-size: 1.1em; }
+        .task-title { font-weight: bold; font-style: italic; color: #333; }
+        
+        .actions { margin-top: 20px; display: flex; gap: 15px; }
+        
+        button { padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #c82333; }
+        
+        .btn-cancel { padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block; }
+        .btn-cancel:hover { background: #5a6268; }
+    </style>
+</head>
+<body>
+
+<div class="alert-box">
+    <h2>⚠ Attention</h2>
+    <p>Voulez-vous vraiment supprimer cette tâche définitivement ?</p>
+    
+    <p class="task-title">"{{ tache['titre'] }}"</p>
+    
+    <form method="post">
+        <div class="actions">
+            <button type="submit">Oui, supprimer</button>
+            
+            <a href="{{ url_for('index') }}" class="btn-cancel">Annuler</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
