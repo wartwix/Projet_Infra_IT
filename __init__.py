@@ -50,7 +50,7 @@ def supprimer(id):
     conn.execute('DELETE FROM taches WHERE id = ?', (id,))
     conn.commit()
     conn.close()
-    return redirect(url_for('index'))
+    return redirect(url_for('supprimer.html'))
 
 # 4. TERMINER : Marquer une tâche comme faite
 # Nouvelle fonctionnalité demandée dans le PDF
